@@ -1,0 +1,41 @@
+{
+  "filename": "HR_Salary_honeytoken.pdf",
+  "type": "honeytoken",
+  "critical_level": "high",
+  "authorized_region": "South Africa",
+  "geo_bounds": {
+    "country_code": "ZA",
+    "latitude_range": {
+      "min": -34.8341,
+      "max": -22.1265
+    },
+    "longitude_range": {
+      "min": 16.4829,
+      "max": 32.8917
+    }
+  },
+  "excluded_regions": [
+    {
+      "country": "Lesotho",
+      "country_code": "LS",
+      "reason": "Enclave within South Africa - not authorized despite geographic proximity",
+      "geo_bounds": {
+        "latitude_range": {
+          "min": -30.677,
+          "max": -28.581
+        },
+        "longitude_range": {
+          "min": 27.011,
+          "max": 29.456
+        }
+      }
+    }
+  ],
+  "created_date": "2025-07-02T10:00:00Z",
+  "description": "Fake HR salary document used as honeytoken for unauthorized access detection - South Africa authorized region only",
+  "alert_settings": {
+    "notify_on_access": true,
+    "log_level": "critical",
+    "response_action": "immediate_alert"
+  }
+}
