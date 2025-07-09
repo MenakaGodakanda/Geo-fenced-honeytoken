@@ -1,0 +1,24 @@
+{
+  "filename": "HR_Salary_honeytoken.pdf",
+  "type": "honeytoken",
+  "critical_level": "high",
+  "authorized_region": "Australia",
+  "geo_bounds": {
+    "country_code": "AU",
+    "latitude_range": {
+      "min": -43.6345972634,
+      "max": -10.6681857235
+    },
+    "longitude_range": {
+      "min": 113.338953078,
+      "max": 153.569469029
+    }
+  },
+  "created_date": "2025-07-02T10:00:00Z",
+  "description": "Fake HR salary document used as honeytoken for unauthorized access detection",
+  "alert_settings": {
+    "notify_on_access": true,
+    "log_level": "critical",
+    "response_action": "immediate_alert"
+  }
+}
