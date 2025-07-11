@@ -114,4 +114,4 @@ honeytoken_simulation/
 ```
 
 ## License
-This project is licensed under the MIT License. Feel free to modify and use it in your security research.
+This project is licensed under the MIT License.
