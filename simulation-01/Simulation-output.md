@@ -1,6 +1,6 @@
 # Simulation 01 Output
 
-Video:
+## Video:
 
 
 
@@ -8,6 +8,7 @@ Video:
 https://github.com/user-attachments/assets/f407bdc2-dabb-4707-9da0-976becabcf49
 
 
+## Detailed Output:
 
 ```
 (venv) mcyber@mcyber-VirtualBox:~/honeytoken_simulation$ python3 scripts/run_simulation.py
