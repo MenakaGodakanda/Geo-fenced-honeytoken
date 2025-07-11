@@ -1,12 +1,12 @@
 # Simulation 02 Output
 
-Video:
+## Video:
 
 
 https://github.com/user-attachments/assets/f123afcd-4ad0-4969-8f93-555f67cb61ad
 
 
-
+## Detailed Result:
 ```
 (venv) mcyber@mcyber-VirtualBox:~/honeytoken_simulation$ python3 scripts/run_simulation.py
 🔒 ENHANCED GEO-FENCED HONEYTOKEN SIMULATION
