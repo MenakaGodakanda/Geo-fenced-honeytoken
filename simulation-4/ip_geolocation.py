@@ -54,7 +54,7 @@ class IPGeolocationService:
 def generate_test_ip_addresses(count: int = 30) -> List[str]:
     """
     Generate a mix of South African and international IP addresses for testing
-    Including nearby African countries as specified
+    Including specific neighboring countries as requested
     
     Args:
         count (int): Number of IP addresses to generate
@@ -63,31 +63,27 @@ def generate_test_ip_addresses(count: int = 30) -> List[str]:
         List[str]: List of IP addresses
     """
     
-    # South African IP ranges
+    # Known South African IP ranges
     south_african_ips = [
-        "196.25.1.1", "196.25.2.1", "196.25.3.1",  # Telkom SA
-        "41.0.0.1", "41.1.0.1", "41.2.0.1",        # MTN SA
-        "105.0.0.1", "105.1.0.1", "105.2.0.1",     # Vodacom SA
-        "154.0.0.1", "154.1.0.1", "154.2.0.1",     # Cell C SA
-        "197.89.0.1", "197.89.1.1", "197.89.2.1",  # SAIX
-        "146.232.0.1", "146.232.1.1", "146.232.2.1"  # Universities SA
+        "196.21.0.1", "196.22.0.1", "196.23.0.1",  # Telkom SA
+        "41.0.0.1", "41.1.0.1", "41.2.0.1",  # MTN SA
+        "105.0.0.1", "105.1.0.1", "105.2.0.1",  # Vodacom SA
+        "165.73.0.1", "165.74.0.1", "165.75.0.1",  # University networks
+        "146.232.0.1", "146.233.0.1", "146.234.0.1",  # Research networks
+        "155.232.0.1", "155.233.0.1", "155.234.0.1"  # Additional SA ranges
     ]
     
-    # Nearby African countries (for demonstration)
-    nearby_african_ips = [
+    # Specific neighboring countries and close locations as requested
+    neighboring_countries_ips = [
         # Zimbabwe (Bulawayo region)
-        "196.27.0.1", "196.27.1.1", "196.27.2.1",
+        "196.220.0.1", "196.221.0.1", "196.222.0.1",
         # Botswana (Gaborone region)
-        "168.167.0.1", "168.167.1.1", "168.167.2.1",
+        "168.167.0.1", "168.168.0.1", "168.169.0.1",
         # Nigeria (Lagos region)
-        "197.210.0.1", "197.210.1.1", "197.210.2.1",
-        # Namibia
-        "41.182.0.1", "41.182.1.1",
-        # Zambia
-        "196.46.0.1", "196.46.1.1"
+        "105.112.0.1", "105.113.0.1", "105.114.0.1"
     ]
     
-    # International IP addresses from various countries
+    # International IP addresses from various other countries
     international_ips = [
         "8.8.8.8", "8.8.4.4",  # Google DNS (US)
         "1.1.1.1", "1.0.0.1",  # Cloudflare (US)
@@ -101,69 +97,41 @@ def generate_test_ip_addresses(count: int = 30) -> List[str]:
         "76.76.19.19", "76.223.100.101",  # Alternate DNS (US)
         "94.140.14.14", "94.140.15.15",  # AdGuard (Cyprus)
         "64.6.64.6", "64.6.65.6",  # Verisign (US)
-        "199.85.126.10", "199.85.127.10",  # Norton (US)
-        "81.218.119.11", "209.244.0.3",  # GreenTeamDNS (Germany/US)
-        "195.46.39.39", "195.46.39.40",  # SafeDNS (Europe)
-        "89.233.43.71", "91.239.100.100",  # UncensoredDNS (Europe)
-        "1.128.0.1", "1.129.0.1",  # Australia (Telstra)
-        "203.50.0.1", "203.51.0.1"  # Australia (Optus)
+        "1.128.0.1", "1.129.0.1",  # Australia
+        "203.50.0.1", "203.51.0.1",  # Australia
+        "37.235.1.174", "37.235.1.177",  # FreeDNS (Austria)
+        "23.253.163.53", "50.116.23.211"  # Alternate DNS (US)
     ]
     
-    # Combine all IPs with proper distribution
-    all_ips = south_african_ips + nearby_african_ips + international_ips
-    selected_ips = random.sample(all_ips, min(count, len(all_ips)))
+    # Combine all IPs with priority for neighboring countries
+    all_ips = south_african_ips + neighboring_countries_ips + international_ips
     
-    # If we need more IPs, generate some random ones
-    if len(selected_ips) < count:
-        for _ in range(count - len(selected_ips)):
-            # Generate random IP (avoiding private ranges)
-            ip = f"{random.randint(1, 223)}.{random.randint(1, 254)}.{random.randint(1, 254)}.{random.randint(1, 254)}"
-            selected_ips.append(ip)
+    # Ensure we include the neighboring countries in our test
+    priority_ips = south_african_ips[:8] + neighboring_countries_ips  # Include all neighboring IPs
+    remaining_count = count - len(priority_ips)
+    
+    if remaining_count > 0:
+        additional_ips = random.sample(international_ips, min(remaining_count, len(international_ips)))
+        selected_ips = priority_ips + additional_ips
+    else:
+        selected_ips = priority_ips[:count]
     
     return selected_ips[:count]
-
-def get_specific_test_ips() -> List[Dict]:
-    """
-    Get specific IP addresses for demonstration including nearby African countries
-    
-    Returns:
-        List[Dict]: List of IP addresses with descriptions
-    """
-    return [
-        # South African IPs (authorized region)
-        {"ip": "196.25.1.1", "description": "Telkom SA - Cape Town, South Africa"},
-        {"ip": "105.0.0.1", "description": "Vodacom SA - Johannesburg, South Africa"},
-        {"ip": "41.0.0.1", "description": "MTN SA - Durban, South Africa"},
-        
-        # Nearby African countries (unauthorized but close)
-        {"ip": "196.27.0.1", "description": "Zimbabwe - Bulawayo"},
-        {"ip": "168.167.0.1", "description": "Botswana - Gaborone"},
-        {"ip": "197.210.0.1", "description": "Nigeria - Lagos"},
-        
-        # International IPs (unauthorized and distant)
-        {"ip": "8.8.8.8", "description": "Google DNS - United States"},
-        {"ip": "1.1.1.1", "description": "Cloudflare - United States"},
-        {"ip": "114.114.114.114", "description": "China DNS - China"},
-        {"ip": "77.88.8.8", "description": "Yandex DNS - Russia"}
-    ]
 
 if __name__ == "__main__":
     # Test the geolocation service
     service = IPGeolocationService()
-    test_ips = get_specific_test_ips()
+    test_ips = generate_test_ip_addresses(5)
     
-    print("Testing IP Geolocation Service for South Africa Demo:")
-    print("-" * 60)
+    print("Testing IP Geolocation Service:")
+    print("-" * 50)
     
-    for ip_info in test_ips[:5]:  # Test first 5
-        ip = ip_info["ip"]
-        description = ip_info["description"]
+    for ip in test_ips:
         location = service.get_location(ip)
-        
-        print(f"IP: {ip} ({description})")
         if location:
-            print(f"Actual Location: {location['city']}, {location['region']}, {location['country']}")
+            print(f"IP: {ip}")
+            print(f"Location: {location['city']}, {location['region']}, {location['country']}")
             print(f"Coordinates: {location['latitude']}, {location['longitude']}")
+            print("-" * 30)
         else:
-            print(f"Failed to get location")
-        print("-" * 40)
+            print(f"Failed to get location for {ip}")
