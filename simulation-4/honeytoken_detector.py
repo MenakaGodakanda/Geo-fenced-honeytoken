@@ -40,7 +40,7 @@ class HoneytokenDetector:
             metadata (Dict): Honeytoken metadata
             
         Returns:
-            bool: True if IP is in authorized region
+            bool: True if IP is in authorized region (South Africa)
         """
         if not ip_location or not metadata:
             return False
@@ -68,43 +68,6 @@ class HoneytokenDetector:
             
         return False
     
-    def determine_geographic_proximity(self, ip_location: Dict) -> str:
-        """
-        Determine if location is nearby South Africa (for enhanced analysis)
-        
-        Args:
-            ip_location (Dict): IP geolocation data
-            
-        Returns:
-            str: Geographic proximity level
-        """
-        if not ip_location:
-            return "unknown"
-            
-        country = ip_location.get('country', '').lower()
-        
-        # South Africa
-        if ip_location.get('country_code') == 'ZA':
-            return "authorized"
-        
-        # Nearby southern African countries
-        nearby_countries = [
-            'zimbabwe', 'botswana', 'namibia', 'zambia', 'mozambique', 'lesotho', 'swaziland'
-        ]
-        
-        # Other African countries
-        african_countries = [
-            'nigeria', 'kenya', 'egypt', 'ghana', 'uganda', 'tanzania', 'algeria', 'morocco',
-            'angola', 'cameroon', 'madagascar', 'burkina faso', 'mali', 'malawi', 'senegal'
-        ]
-        
-        if any(nearby in country for nearby in nearby_countries):
-            return "nearby_african"
-        elif any(african in country for african in african_countries):
-            return "african_continent"
-        else:
-            return "international"
-    
     def generate_alert(self, filename: str, ip_address: str, ip_location: Dict, 
                       metadata: Dict, scenario: str) -> Dict:
         """
@@ -122,91 +85,43 @@ class HoneytokenDetector:
         """
         timestamp = datetime.datetime.now().isoformat()
         is_geo_valid = self.is_ip_in_authorized_region(ip_location, metadata)
-        proximity = self.determine_geographic_proximity(ip_location)
-        
-        # Enhanced scenario description
-        scenario_descriptions = {
-            "SCENARIO_1": "Authorized Geography + Unauthorized Access (Honeytoken)",
-            "SCENARIO_2": "Unauthorized Geography + Unauthorized Access (Honeytoken)"
-        }
         
         alert = {
-            "alert_id": f"HT_ZA_{int(datetime.datetime.now().timestamp())}",
+            "alert_id": f"HT_{int(datetime.datetime.now().timestamp())}",
             "timestamp": timestamp,
             "alert_type": "HONEYTOKEN_ACCESS",
             "severity": metadata.get('critical_level', 'medium').upper(),
             "scenario": scenario,
-            "scenario_description": scenario_descriptions.get(scenario, "Unknown scenario"),
             "file_accessed": filename,
             "ip_address": ip_address,
             "geographical_validation": {
                 "is_authorized_region": is_geo_valid,
                 "authorized_region": metadata.get('authorized_region', 'Unknown'),
-                "geographic_proximity": proximity,
                 "detected_location": {
                     "country": ip_location.get('country', 'Unknown'),
-                    "country_code": ip_location.get('country_code', 'Unknown'),
                     "region": ip_location.get('region', 'Unknown'),
                     "city": ip_location.get('city', 'Unknown'),
                     "coordinates": {
                         "latitude": ip_location.get('latitude', 0),
                         "longitude": ip_location.get('longitude', 0)
                     },
-                    "isp": ip_location.get('isp', 'Unknown'),
-                    "timezone": ip_location.get('timezone', 'Unknown')
+                    "isp": ip_location.get('isp', 'Unknown')
                 }
             },
             "risk_assessment": {
                 "geo_risk": "LOW" if is_geo_valid else "HIGH",
-                "proximity_risk": self._assess_proximity_risk(proximity),
                 "access_risk": "HIGH",  # Always high for honeytoken access
-                "overall_risk": "HIGH" if is_geo_valid else "CRITICAL"
+                "overall_risk": "CRITICAL" if not is_geo_valid else "HIGH"
             },
-            "recommended_actions": self._get_recommended_actions(is_geo_valid, proximity)
+            "recommended_actions": [
+                "Immediate investigation required - Honeytoken accessed",
+                "Block IP address if malicious activity confirmed",
+                "Review access logs for this IP",
+                "Check for lateral movement indicators"
+            ]
         }
         
         return alert
-    
-    def _assess_proximity_risk(self, proximity: str) -> str:
-        """Assess risk based on geographic proximity"""
-        risk_levels = {
-            "authorized": "LOW",
-            "nearby_african": "MEDIUM",
-            "african_continent": "MEDIUM-HIGH",
-            "international": "HIGH"
-        }
-        return risk_levels.get(proximity, "HIGH")
-    
-    def _get_recommended_actions(self, is_geo_valid: bool, proximity: str) -> List[str]:
-        """Get recommended actions based on scenario"""
-        base_actions = [
-            "🚨 IMMEDIATE investigation required - Honeytoken accessed",
-            "🔍 Review all access logs for this IP address",
-            "🕵️ Check for indicators of lateral movement",
-            "📊 Analyze access patterns from this source"
-        ]
-        
-        if not is_geo_valid:
-            if proximity == "nearby_african":
-                base_actions.extend([
-                    "🌍 Cross-border access detected from neighboring country",
-                    "🔒 Consider implementing additional geo-fencing controls",
-                    "📞 Notify regional security team"
-                ])
-            elif proximity == "international":
-                base_actions.extend([
-                    "🌐 International access detected - HIGH PRIORITY",
-                    "🛡️ Consider immediate IP blocking if no legitimate business case",
-                    "🚫 Implement emergency access controls"
-                ])
-        else:
-            base_actions.extend([
-                "✅ Access from authorized region but HONEYTOKEN accessed",
-                "🔐 Possible insider threat or compromised internal system",
-                "👥 Review internal access controls and user permissions"
-            ])
-            
-        return base_actions
     
     def log_alert(self, alert: Dict):
         """Log alert to file"""
@@ -257,7 +172,7 @@ class HoneytokenDetector:
             print(f"   ❌ Failed to get location for {ip_address}")
             return None
         
-        print(f"   📍 Location: {ip_location['city']}, {ip_location['region']}, {ip_location['country']}")
+        print(f"   📍 Location: {ip_location['city']}, {ip_location['country']}")
         
         # Determine scenario
         is_geo_valid = self.is_ip_in_authorized_region(ip_location, metadata)
@@ -277,12 +192,11 @@ class HoneytokenDetector:
     def display_alert(self, alert: Dict):
         """Display alert in a formatted way"""
         print(f"\n🚨 SECURITY ALERT - {alert['alert_type']}")
-        print("=" * 70)
+        print("=" * 60)
         print(f"Alert ID: {alert['alert_id']}")
         print(f"Timestamp: {alert['timestamp']}")
         print(f"Severity: {alert['severity']}")
         print(f"Scenario: {alert['scenario']}")
-        print(f"Description: {alert['scenario_description']}")
         print()
         print(f"📁 File Accessed: {alert['file_accessed']}")
         print(f"🌐 IP Address: {alert['ip_address']}")
@@ -290,22 +204,34 @@ class HoneytokenDetector:
         print("🗺️  GEOGRAPHICAL ANALYSIS:")
         geo = alert['geographical_validation']
         print(f"   Authorized Region: {geo['authorized_region']}")
-        print(f"   Geographic Validity: {'✅ VALID' if geo['is_authorized_region'] else '❌ INVALID'}")
-        print(f"   Geographic Proximity: {geo['geographic_proximity'].upper()}")
+        
+        # Enhanced geographical validation messaging
+        if geo['is_authorized_region']:
+            print(f"   Geographic Validation: ✅ VALID (Access from authorized region)")
+            print(f"   Access Authorization: ❌ UNAUTHORIZED (Honeytoken accessed)")
+        else:
+            print(f"   Geographic Validation: ❌ INVALID (Access from unauthorized region)")
+            print(f"   Access Authorization: ❌ UNAUTHORIZED (Honeytoken accessed)")
+        
         print(f"   Detected Location: {geo['detected_location']['city']}, {geo['detected_location']['region']}, {geo['detected_location']['country']}")
-        print(f"   Country Code: {geo['detected_location']['country_code']}")
         print(f"   Coordinates: {geo['detected_location']['coordinates']['latitude']:.4f}, {geo['detected_location']['coordinates']['longitude']:.4f}")
         print(f"   ISP: {geo['detected_location']['isp']}")
-        print(f"   Timezone: {geo['detected_location']['timezone']}")
         print()
         print("⚠️  RISK ASSESSMENT:")
         risk = alert['risk_assessment']
         print(f"   Geographic Risk: {risk['geo_risk']}")
-        print(f"   Proximity Risk: {risk['proximity_risk']}")
         print(f"   Access Risk: {risk['access_risk']}")
         print(f"   Overall Risk: {risk['overall_risk']}")
         print()
         print("🔧 RECOMMENDED ACTIONS:")
         for i, action in enumerate(alert['recommended_actions'], 1):
             print(f"   {i}. {action}")
-        print("=" * 70)
+        print("=" * 60)
+
+if __name__ == "__main__":
+    # Test the detector
+    detector = HoneytokenDetector()
+    
+    # Test with a sample IP from outside South Africa
+    test_ip = "8.8.8.8"  # Google DNS (US)
+    detector.process_access_attempt("HR_Salary_honeytoken.pdf", test_ip)
