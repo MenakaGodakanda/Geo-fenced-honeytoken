@@ -6,15 +6,15 @@
   "geo_bounds": {
     "country_code": "ZA",
     "latitude_range": {
-      "min": -34.8391,
-      "max": -22.1254
+      "min": -34.8191663551,
+      "max": -22.1254239429
     },
     "longitude_range": {
-      "min": 16.4449,
-      "max": 32.8950
+      "min": 16.4449768409,
+      "max": 32.8931058957
     }
   },
-  "created_date": "2025-07-02T10:00:00Z",
+  "created_date": "2025-07-16T10:00:00Z",
   "description": "Fake HR salary document used as honeytoken for unauthorized access detection",
   "alert_settings": {
     "notify_on_access": true,
