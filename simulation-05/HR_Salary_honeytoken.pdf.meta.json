@@ -1,0 +1,24 @@
+{
+  "filename": "HR_Salary_honeytoken.pdf",
+  "type": "honeytoken",
+  "critical_level": "high",
+  "authorized_region": "India",
+  "geo_bounds": {
+    "country_code": "IN",
+    "latitude_range": {
+      "min": 8.4,
+      "max": 35.5
+    },
+    "longitude_range": {
+      "min": 68.7,
+      "max": 97.4
+    }
+  },
+  "created_date": "2025-10-25T10:00:00Z",
+  "description": "Fake HR salary document used as honeytoken for unauthorized access detection - India region",
+  "alert_settings": {
+    "notify_on_access": true,
+    "log_level": "critical",
+    "response_action": "immediate_alert"
+  }
+}
