@@ -32,7 +32,7 @@ sudo apt install curl wget git -y
 ### 1. Installation
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/honeytoken_simulation.git
+git clone https://github.com/MenakaGodakanda/honeytoken_simulation.git
 cd honeytoken_simulation
 ```
 
